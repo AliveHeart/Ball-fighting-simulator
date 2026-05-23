@@ -1,32 +1,5 @@
 import math
-import pygame
-
-clock = pygame.time.Clock()
-
-tick_dura = 0.5
-
-def Burn(ball, dmg):
-    amount = 10
-    tick = 0
-    while True:
-        if (tick >= tick_dura):
-            amount -= 1
-            ball.hp -= math.floor(dmg / 10)
-        if (amount == 0):
-            break
-
-        tick += clock.tick(144)/ 1000
-
-
-def DealDamage(plr_attacker, plr_defender):
-    if (plr_defender.armr > 0 + plr_attacker.dmg):
-        plr_defender.armr -= plr_attacker.dmg
-    else:
-        plr_defender.hp -= plr_attacker.dmg
-    
-    if (plr_attacker.encht == "fire"):
-        plr_defender.hp -= plr_attacker.dmg * plr_attacker.enTier
-       # Burn(plr_defender, plr_attacker.dmg * plr_attacker.enTier)
+import Combat
 
 def CheckCollision(x1, y1, x2, y2, r1, r2):
     dx = x2 - x1
@@ -38,7 +11,9 @@ def CheckCollision(x1, y1, x2, y2, r1, r2):
         return True
     return False
 
-def ResolveCollision(plr1, plr2):
+import math
+
+def ResolveCollision(plr1, plr2, dt):
     dx = plr2.x - plr1.x
     dy = plr2.y - plr1.y
     dist = math.sqrt(dx*dx + dy*dy)
@@ -50,12 +25,13 @@ def ResolveCollision(plr1, plr2):
     if overlap > 0:
         nx = dx / dist
         ny = dy / dist
+
         plr1.x -= nx * overlap / 2
         plr1.y -= ny * overlap / 2
         plr2.x += nx * overlap / 2
         plr2.y += ny * overlap / 2
 
-        tx, ty = -ny, nx 
+        tx, ty = -ny, nx
 
         v1n = plr1.vx * nx + plr1.vy * ny
         v1t = plr1.vx * tx + plr1.vy * ty
@@ -67,8 +43,19 @@ def ResolveCollision(plr1, plr2):
         plr2.vx = v1n * nx + v2t * tx
         plr2.vy = v1n * ny + v2t * ty
 
-        plr1.dir *= -1
-        plr2.dir *= -1
+        spd1 = math.sqrt(plr1.vx**2 + plr1.vy**2)
+        spd2 = math.sqrt(plr2.vx**2 + plr2.vy**2)
+        if spd1 != 0:
+            plr1.vx = plr1.vx / spd1 * plr1.spd
+            plr1.vy = plr1.vy / spd1 * plr1.spd
+        if spd2 != 0:
+            plr2.vx = plr2.vx / spd2 * plr2.spd
+            plr2.vy = plr2.vy / spd2 * plr2.spd
 
-        DealDamage(plr1, plr2)
-        DealDamage(plr2, plr1)
+
+        if plr1.collision_cooldown <= 0 and plr2.collision_cooldown <= 0:
+            Combat.DealDamage(plr1, plr2)
+            Combat.DealDamage(plr2, plr1)
+
+            plr1.collision_cooldown = 0.05
+            plr2.collision_cooldown = 0.05
