@@ -3,64 +3,81 @@ import sys
 import math
 import random
 import Physics
+import Combat
 
 pygame.init()
 
 running = True
 clock = pygame.time.Clock()
 
-Tick = 0
-Tick_Dura = 1
-
-Burning = []
-
 screen = pygame.display.set_mode((1280, 720))
 Black = (0,0,0)
 WHITE = (255, 255, 255)
 
-font = pygame.font.Font(None, 50)
+tick = 0
+dt = 0
+global_speed = 1
+
+players = []
 
 class Player:
     def __init__(self, x, y, r, hp, armr, dmg, clr, spd, encht, tier,vx=0, vy=0):
         self.x = x
         self.y = y
         self.r = r
+        self.clr = clr
+
         self.hp = hp
         self.armr = armr
         self.dmg = dmg
-        self.clr = clr
         self.spd = spd
-        self.dir = random.choice([45, 135, 225, 315])
-        self.vx = vx
-        self.vy = vy
+
+        angle = random.uniform(0, 360)
+        rad = math.radians(angle)
+
+        self.vx = math.cos(rad) * spd
+        self.vy = math.sin(rad) * spd
+
         self.encht = encht
         self.enTier = tier
 
-        self.text_surface = font.render(str(hp) + " + " + str(armr), True, WHITE)
+        self.DoT_tick = 1
+        self.DoT_dmg = 0
+        self.DoT_dura = 0
+
+        self.collision_cooldown = 0
+
+        self.font = pygame.font.Font(None, math.floor(r/1.5))
+        self.text_surface = self.font.render(str(hp) + " + " + str(armr), True, WHITE)
     
     def draw(self):
-        self.text_surface = font.render(str(self.hp) + " + " + str(self.armr), True, WHITE)
+        self.text_surface = self.font.render(str(math.ceil(self.hp)) + " + " + str(self.armr), True, WHITE)
 
         pygame.draw.circle(screen, self.clr, (self.x, self.y), self.r)
         screen.blit(self.text_surface, (self.x - self.r/2, self.y))
 
     def move(self, dt):
-        rad = math.radians(self.dir)
+        self.x += self.vx * dt
+        self.y += self.vy * dt
 
-        self.x += self.vx + math.cos(rad) * self.spd * dt
-        self.y += self.vy + math.sin(rad) * self.spd * dt
+        if self.x < self.r:
+            self.x = self.r
+            self.vx *= -1 * global_speed
+        elif self.x > 1280 - self.r:
+            self.x = 1280 - self.r 
+            self.vx *= -1 * global_speed
 
-        if self.x < 0 + self.r or self.x > 1280 - self.r:
-            self.dir = (180 - self.dir) % 360
-            self.hp -= 1
-        if self.y < 0 + self.r or self.y > 720 - self.r:
-            self.dir = (-self.dir) % 360
-            self.hp -= 1
+        if self.y < self.r:
+            self.y = self.r 
+            self.vy *= -1 * global_speed
+        elif self.y > 720 - self.r:
+            self.y = 720 - self.r 
+            self.vy *= -1 * global_speed
 
 
-plr_1 = Player(500, 500, 80, 100, 100, 3, (255, 0, 0), 800, "fire", 1)
-plr_2 = Player(500, 500, 80, 100, 0, 3, (0, 0, 255), 900, "none", 0)
-
+players.append(Player(100, 100, 80, 200, 100, 5, (255,0,0), 300, "fire", 7))  # red ball
+players.append(Player(300, 200, 80, 200, 100, 5, (0,255,0), 300, "none", 0))  # green ball
+players.append(Player(500, 400, 80, 200, 100, 5, (0,0,255), 300, "none", 0))  # blue ball
 
 while running == True:
     for event in pygame.event.get():
@@ -71,16 +88,28 @@ while running == True:
         running = False
 
     screen.fill(Black)
-    plr_1.draw()
-    plr_2.draw()
+
+    for plr in players:
+        plr.move(dt)
+        plr.draw()
+
+        if (plr.collision_cooldown > 0):
+            plr.collision_cooldown -= dt
+
+        Combat.effectDoT(plr, dt)
+
 
     pygame.display.flip()
     dt = clock.tick(144) / 1000
 
-    plr_1.move(dt)
-    plr_2.move(dt)
+    tick += dt
+    for i in range(len(players)):
+        for j in range(i+1, len(players)):
+            p1 = players[i]
+            p2 = players[j]
 
-    if (Physics.CheckCollision(plr_1.x, plr_1.y, plr_2.x, plr_2.y, plr_1.r, plr_2.r) == True):
-        Physics.ResolveCollision(plr_1, plr_2)
+            if Physics.CheckCollision(p1.x, p1.y, p2.x, p2.y, p1.r, p2.r):
+                Physics.ResolveCollision(p1, p2, dt)
+        
 
 pygame.quit()
