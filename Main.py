@@ -41,9 +41,9 @@ class Player:
         self.encht = encht
         self.enTier = tier
 
-        self.DoT_tick = 1
-        self.DoT_dmg = 0
-        self.DoT_dura = 0
+        self.DoTs = {}
+
+        self.pause = False
 
         self.collision_cooldown = 0
 
@@ -57,27 +57,34 @@ class Player:
         screen.blit(self.text_surface, (self.x - self.r/2, self.y))
 
     def move(self, dt):
+        if (self.pause == True):
+            return
+        
         self.x += self.vx * dt
         self.y += self.vy * dt
 
         if self.x < self.r:
             self.x = self.r
             self.vx *= -1 * global_speed
+            self.hp -=1
         elif self.x > 1280 - self.r:
             self.x = 1280 - self.r 
             self.vx *= -1 * global_speed
+            self.hp -= 1
 
         if self.y < self.r:
             self.y = self.r 
             self.vy *= -1 * global_speed
+            self.hp -= 1
         elif self.y > 720 - self.r:
             self.y = 720 - self.r 
             self.vy *= -1 * global_speed
+            self.hp -= 1
 
 
-players.append(Player(100, 100, 80, 200, 100, 5, (255,0,0), 300, "fire", 7))  # red ball
-players.append(Player(300, 200, 80, 200, 100, 5, (0,255,0), 300, "none", 0))  # green ball
-players.append(Player(500, 400, 80, 200, 100, 5, (0,0,255), 300, "none", 0))  # blue ball
+players.append(Player(100, 100, 80, 200, 100, 5, (255,0,0), 300, "poison", 1))  # red ball
+players.append(Player(300, 200, 80, 200, 100, 5, (0,255,0), 300, "fire", 7))  # green ball
+#players.append(Player(500, 400, 80, 200, 100, 5, (0,0,255), 300, "none", 0))  # blue ball
 
 while running == True:
     for event in pygame.event.get():
