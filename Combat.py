@@ -1,22 +1,30 @@
 import math
 
-def effectDoT(plr, dt):
-    if (plr.DoT_dura > 0):
-        plr.DoT_tick -= dt
-        if (plr.DoT_tick < 0):
-            plr.hp -= plr.DoT_dmg
-            plr.DoT_dura -= 1
-            plr.DoT_tick = 1
-    else:
-        plr.DoT_dura = 0
-        plr.DoT_tick = 1
-        plr.DoT_dmg = 0
+Abilities = {"fire" : {"dmg": 0.7, "type": "burn", "tick": 1, "dura" : 7},
+        "bfire" : {"dmg": 2, "type": "burn", "tick": 0.5, "dura": 7},
+        "poison" : {"dmg": 1, "type": "burn", "tick": 1, "dura": 10},
+}
 
-def applyDoT(plrD, dmg, tier):
-    if (plrD.DoT_dura <= 0):
-        plrD.DoT_tick = 1
-        plrD.DoT_dura = 5 * tier
-        plrD.DoT_dmg = (dmg * tier) / 5
+def effectDoT(plr, dt):
+    if (len(plr.DoTs) > 0):
+        for effect, dot in list(plr.DoTs.items()):
+            dot["tick"] -= dt
+            if dot["tick"] <= 0:
+                plr.hp -= dot["dmg"] / dot["dura"]
+                dot["dura"] -= 1
+                dot["tick"] = Abilities[effect]["tick"] 
+
+            if dot["dura"] <= 0:
+                del plr.DoTs[effect]
+    else:
+        plr.DoTs = {}
+
+def applyDoT(plrD, dmg, effect,tier):
+    if (effect not in plrD.DoTs):
+        Dot = Abilities[effect]
+        newDoT = {"dmg": (dmg * tier * Dot["dmg"]), "tick": Dot["tick"], "dura": Dot["dura"]}
+        plrD.DoTs[effect] = newDoT
+
 
 def DealDamage(plr_attacker, plr_defender):
     if (plr_defender.armr >= 0 + plr_attacker.dmg):
@@ -24,5 +32,5 @@ def DealDamage(plr_attacker, plr_defender):
     else:
         plr_defender.hp -= plr_attacker.dmg
     
-    if (plr_attacker.encht == "fire"):
-        applyDoT(plr_defender, plr_attacker.dmg, plr_attacker.enTier)
+    if (plr_attacker.encht != "none"):
+        applyDoT(plr_defender, plr_attacker.dmg, plr_attacker.encht ,plr_attacker.enTier)
