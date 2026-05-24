@@ -9,3 +9,4 @@ Right now this isn't an executable so you'll have to run it manually through vis
 - Health points and armor indications.
 - Multiple balls
 - Burn damage balls
+- DoT stacking
