@@ -54,8 +54,9 @@ def ResolveCollision(plr1, plr2, dt):
 
 
         if plr1.collision_cooldown <= 0 and plr2.collision_cooldown <= 0:
-            Combat.DealDamage(plr1, plr2)
-            Combat.DealDamage(plr2, plr1)
+            if (plr1.clr != plr2.clr):
+                Combat.DealDamage(plr1, plr2)
+                Combat.DealDamage(plr2, plr1)
 
             plr1.collision_cooldown = 0.05
             plr2.collision_cooldown = 0.05
