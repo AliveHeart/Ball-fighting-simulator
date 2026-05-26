@@ -5,32 +5,58 @@ import random
 import Physics
 import Combat
 
+from config import players, SCREEN_HEIGHT, SCREEN_WIDTH, BASE_HEIGHT, BASE_WIDTH
+
 pygame.init()
 
 running = True
 clock = pygame.time.Clock()
 
+modes = pygame.display.list_modes()
 screen = pygame.display.set_mode((1280, 720))
+
+pygame.display.set_caption("Ball fighting simulator")
+
+Fullscreen = False
+
+SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_size()
+
+middleButtonRect = pygame.Rect(1280/2.5, 720/2, 200 * (SCREEN_WIDTH / BASE_WIDTH), 100 * (SCREEN_WIDTH / BASE_WIDTH))
+
 Black = (0,0,0)
 WHITE = (255, 255, 255)
+Green = (0,255,0)
+LGreen = (26,255,60)
 
 tick = 0
 dt = 0
 global_speed = 1
 
-players = []
+bigFont = pygame.font.Font(None, 72)
+Font = pygame.font.Font(None, 52)
+
+def draw_button(button_rect, button_text, clr1, clr2):
+    mouse_pos = pygame.mouse.get_pos()
+    if button_rect.collidepoint(mouse_pos):
+        pygame.draw.rect(screen, clr1, button_rect)
+    else:
+        pygame.draw.rect(screen, clr2, button_rect)
+
+    # Center text on button
+    text_rect = button_text.get_rect(center=button_rect.center)
+    screen.blit(button_text, text_rect)
 
 class Player:
     def __init__(self, x, y, r, hp, armr, dmg, clr, spd, encht, tier, ult,vx=0, vy=0):
         self.x = x
         self.y = y
-        self.r = r
+        self.r = r * (SCREEN_HEIGHT / BASE_HEIGHT)
         self.clr = clr
 
         self.hp = hp
         self.armr = armr
         self.dmg = dmg
-        self.spd = spd
+        self.spd = spd * (SCREEN_HEIGHT / BASE_HEIGHT)
 
         angle = random.uniform(0, 360)
         rad = math.radians(angle)
@@ -58,7 +84,7 @@ class Player:
     def draw(self):
         displayString = ""
         if (self.armr > 0) :
-            displayString = str(math.ceil(self.hp)) + " + " + str(self.armr)
+            displayString = str(math.ceil(self.hp)) + " + " + str(math.ceil(self.armr))
         else:
             displayString = str(math.ceil(self.hp))
 
@@ -80,8 +106,8 @@ class Player:
             self.x = self.r
             self.vx *= -1 * global_speed
             collided = True
-        elif self.x > 1280 - self.r:
-            self.x = 1280 - self.r 
+        elif self.x > SCREEN_WIDTH - self.r:
+            self.x = SCREEN_WIDTH - self.r 
             self.vx *= -1 * global_speed
             collided = True
 
@@ -89,8 +115,8 @@ class Player:
             self.y = self.r 
             self.vy *= -1 * global_speed
             collided = True
-        elif self.y > 720 - self.r:
-            self.y = 720 - self.r 
+        elif self.y > SCREEN_HEIGHT - self.r:
+            self.y = SCREEN_HEIGHT - self.r 
             self.vy *= -1 * global_speed
             collided = True
         
@@ -105,40 +131,60 @@ def initiateBattle():
     players.append(Player(300, 200, 80, 500, 100, 5, (0,255,0), 800, "poison", 1, "none"))  # green ball
     players.append(Player(500, 400, 80, 500, 100, 5, (10,10,10), 800, "bfire", 1, "none"))  # black ball
     players.append(Player(500, 600, 80, 500, 100, 5, (0,255,255), 800, "frost", 1, "none"))  # cyan  ball
+    players.append(Player(300, 600, 80, 500, 100, 5, (0,100,255), 800, "static", 1, "none")) # blue ball
     players.append(Player(300, 300, 80, 500, 100, 5, (1, 50, 32), 800, "virus", 1, "none"))  # dark green ball
+    players.append(Player(200, 500, 80, 500, 100, 5, (50, 10, 32), 800, "leech", 1, "none"))  # dark red ball
 
-for i in range(1, 2):
-    initiateBattle()
-
+state = "menu"
 while running == True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT: sys.exit()
 
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if (middleButtonRect.collidepoint(event.pos) and state == "menu"):
+                state = "game"
+                initiateBattle()
+
     keys = pygame.key.get_pressed()
     if (keys[pygame.K_ESCAPE] == True):
         running = False
+    elif (keys[pygame.K_F11] == True):
+        if (Fullscreen == False):
+            Fullscreen = True
+            screen = pygame.display.set_mode(modes[0], pygame.FULLSCREEN)
+        else:
+            Fullscreen = False
+            screen = pygame.display.set_mode(modes[0])
 
     screen.fill(Black)
 
-    for plr in players:
-        plr.move(dt)
-        plr.draw()
+    if (state == "game"):
+        for plr in players:
+            plr.move(dt)
+            plr.draw()
 
-        if (plr.collision_cooldown > 0):
-            plr.collision_cooldown -= dt
+            if (plr.collision_cooldown > 0):
+                plr.collision_cooldown -= dt
 
-        Combat.effectDoT(plr, dt)
+            Combat.effectDoT(plr, dt)
 
-        if (plr.hp <= 0):
-            players.remove(plr)
+            if (plr.hp <= 0):
+                players.remove(plr)
 
-    for i in range(len(players)):
-        for j in range(i+1, len(players)):
-            p1 = players[i]
-            p2 = players[j]
+        for i in range(len(players)):
+            for j in range(i+1, len(players)):
+                p1 = players[i]
+                p2 = players[j]
 
-            if Physics.CheckCollision(p1.x, p1.y, p2.x, p2.y, p1.r, p2.r):
-                Physics.ResolveCollision(p1, p2, dt)
+                if Physics.CheckCollision(p1.x, p1.y, p2.x, p2.y, p1.r, p2.r):
+                    Physics.ResolveCollision(p1, p2, dt)
+    elif (state == "menu"):
+        mainText = bigFont.render("Ball fighting simulator", True, WHITE)
+        PlayText = bigFont.render("Play", True, WHITE)
+        screen.blit(mainText, (1280/3.5, 720/5))
+        draw_button(middleButtonRect, PlayText, Green, LGreen)
+
+        #screen.blit(PlayText, (1280/2.25, 720/2))
         
     pygame.display.flip()
     dt = clock.tick(144) / 1000
