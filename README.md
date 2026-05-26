@@ -7,6 +7,7 @@ Right now this isn't an executable so you'll have to run it manually through vis
 ## Features
 - Ball physics and collision between balls and screen.
 - Health points and armor indications.
-- Multiple balls
-- Burn damage balls, freezing balls, virus infecting balls and poison balls
-- DoT stacking balls
+- Multiple balls.
+- Burn damage balls, freezing balls, virus infecting balls, poison balls, etc.
+- DoT stacking balls.
+- Resolution scaling (settings coming soon).
