@@ -11,3 +11,4 @@ Right now this isn't an executable so you'll have to run it manually through vis
 - Burn damage balls, freezing balls, virus infecting balls, poison balls, etc.
 - DoT stacking balls.
 - Resolution scaling (settings coming soon).
+- DoT indicators
