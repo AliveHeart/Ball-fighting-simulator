@@ -1,4 +1,4 @@
-from config import players, Abilities, BASE_HEIGHT, BASE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH
+from config import players, Abilities, SCREENX, SCREENY
 from math import floor
 
 def checkDistance(x1, x2, y1, y2, reqDist):
@@ -6,7 +6,7 @@ def checkDistance(x1, x2, y1, y2, reqDist):
     dy = y2 - y1
     dist_sq = dx**2 + dy**2
 
-    return dist_sq <= (reqDist * (SCREEN_HEIGHT / BASE_HEIGHT))**2
+    return dist_sq <= (reqDist * (SCREENY))**2
 
 def effectDoT(plr, dt):
     if (len(plr.DoTs) > 0):
@@ -31,8 +31,8 @@ def effectDoT(plr, dt):
                     else:
                         plr.pause = False
                         plr.disabled = False
-                if (dot["type"] == "chain"):
-                    plr.disabled = True
+                #if (dot["type"] == "chain"):
+                    #plr.disabled = True
 
             if dot["dura"] <= 0:
                 del plr.DoTs[effect]
@@ -40,6 +40,8 @@ def effectDoT(plr, dt):
                 plr.disabled = False
     else:
         plr.DoTs = {}
+        plr.pause = False
+        plr.disabled = False
 
 def applyDoT(plrD, plrA, dmg, effect,tier):
     if (effect not in plrD.DoTs or (effect == "poison" or effect == "bfire")):
