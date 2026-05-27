@@ -1,11 +1,13 @@
-import pygame
+import pygame, os
 import sys
 import math
 import random
 import Physics
 import Combat
 
-from config import players, SCREEN_HEIGHT, SCREEN_WIDTH, BASE_HEIGHT, BASE_WIDTH
+from config import players, SCREENX, SCREENY
+
+base_dir = os.path.dirname(os.path.abspath(__file__))
 
 pygame.init()
 
@@ -21,19 +23,28 @@ Fullscreen = False
 
 SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_size()
 
-middleButtonRect = pygame.Rect(1280/2.5, 720/2, 200 * (SCREEN_WIDTH / BASE_WIDTH), 100 * (SCREEN_WIDTH / BASE_WIDTH))
+middleButtonRect = pygame.Rect(1280/2.5, 720/2, 200 * (SCREENX), 100 * (SCREENX))
 
 Black = (0,0,0)
 WHITE = (255, 255, 255)
 Green = (0,255,0)
 LGreen = (26,255,60)
 
+fire_Image = pygame.image.load(os.path.join(base_dir, 'Assets', 'images', 'fire.png')).convert_alpha()
+bfire_Image = pygame.image.load(os.path.join(base_dir, 'Assets', 'images', 'bfire.png')).convert_alpha()
+poison_Image = pygame.image.load(os.path.join(base_dir, 'Assets', 'images', 'poison.png')).convert_alpha()
+virus_Image = pygame.image.load(os.path.join(base_dir, 'Assets', 'images', 'virus.png')).convert_alpha()
+static_Image = pygame.image.load(os.path.join(base_dir, 'Assets', 'images', 'static.png')).convert_alpha()
+frost_Image = pygame.image.load(os.path.join(base_dir, 'Assets', 'images', 'frost.png')).convert_alpha()
+leech_Image = pygame.image.load(os.path.join(base_dir, 'Assets', 'images', 'leech.png')).convert_alpha()
+
 tick = 0
 dt = 0
-global_speed = 1
+global_speed = 0.5
 
 bigFont = pygame.font.Font(None, 72)
 Font = pygame.font.Font(None, 52)
+tinyFont = pygame.font.Font(None, 24)
 
 def draw_button(button_rect, button_text, clr1, clr2):
     mouse_pos = pygame.mouse.get_pos()
@@ -50,13 +61,13 @@ class Player:
     def __init__(self, x, y, r, hp, armr, dmg, clr, spd, encht, tier, ult,vx=0, vy=0):
         self.x = x
         self.y = y
-        self.r = r * (SCREEN_HEIGHT / BASE_HEIGHT)
+        self.r = r * (SCREENY)
         self.clr = clr
 
         self.hp = hp
         self.armr = armr
         self.dmg = dmg
-        self.spd = spd * (SCREEN_HEIGHT / BASE_HEIGHT)
+        self.spd = spd * (SCREENY)
 
         angle = random.uniform(0, 360)
         rad = math.radians(angle)
@@ -98,26 +109,26 @@ class Player:
         if (self.pause == True):
             return
         
-        self.x += self.vx * dt
-        self.y += self.vy * dt
+        self.x += self.vx * dt * global_speed
+        self.y += self.vy * dt * global_speed
 
         collided = False
         if self.x < self.r:
             self.x = self.r
-            self.vx *= -1 * global_speed
+            self.vx *= -1
             collided = True
         elif self.x > SCREEN_WIDTH - self.r:
             self.x = SCREEN_WIDTH - self.r 
-            self.vx *= -1 * global_speed
+            self.vx *= -1
             collided = True
 
         if self.y < self.r:
             self.y = self.r 
-            self.vy *= -1 * global_speed
+            self.vy *= -1
             collided = True
         elif self.y > SCREEN_HEIGHT - self.r:
             self.y = SCREEN_HEIGHT - self.r 
-            self.vy *= -1 * global_speed
+            self.vy *= -1
             collided = True
         
         if (collided == True):
@@ -143,6 +154,8 @@ while running == True:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if (middleButtonRect.collidepoint(event.pos) and state == "menu"):
                 state = "game"
+                
+                #for i in range(1, 5):
                 initiateBattle()
 
     keys = pygame.key.get_pressed()
@@ -171,6 +184,31 @@ while running == True:
             if (plr.hp <= 0):
                 players.remove(plr)
 
+            for index, DoT in enumerate(plr.DoTs):
+                scaleX = (plr.r/2) * (SCREENX)
+                scaleY = (plr.r/2) * (SCREENY)
+
+                posY = (plr.y - 70 * SCREENY) - scaleY
+                posX = plr.x + ((index - 1) * scaleX)
+
+                if DoT == "fire":
+                    screen.blit(pygame.transform.scale(fire_Image, (scaleX, scaleY)), (posX, posY))
+                if DoT == "bfire":
+                    screen.blit(pygame.transform.scale(bfire_Image, (scaleX, scaleY)), (posX, posY))
+                if DoT == "poison":
+                    screen.blit(pygame.transform.scale(poison_Image, (scaleX, scaleY)), (posX, posY))
+                if DoT == "static":
+                    screen.blit(pygame.transform.scale(static_Image, (scaleX, scaleY)), (posX, posY))
+                if DoT == "virus":
+                    screen.blit(pygame.transform.scale(virus_Image, (scaleX, scaleY)), (posX, posY))
+                if DoT == "frost":
+                    screen.blit(pygame.transform.scale(frost_Image, (scaleX, scaleY)), (posX, posY))
+                if DoT == "leech":
+                    screen.blit(pygame.transform.scale(leech_Image, (scaleX, scaleY)), (posX, posY))
+
+                screen.blit(tinyFont.render(str(plr.DoTs[DoT]["tier"]), True, WHITE), (posX, posY))
+                screen.blit(tinyFont.render(str(plr.DoTs[DoT]["dura"]), True, WHITE), (posX, (plr.y - 30 * SCREENY) - scaleY))
+
         for i in range(len(players)):
             for j in range(i+1, len(players)):
                 p1 = players[i]
@@ -183,8 +221,9 @@ while running == True:
         PlayText = bigFont.render("Play", True, WHITE)
         screen.blit(mainText, (1280/3.5, 720/5))
         draw_button(middleButtonRect, PlayText, Green, LGreen)
-
-        #screen.blit(PlayText, (1280/2.25, 720/2))
+    elif (state == "setup"):
+        mainText = bigFont.render("Set up your balls!", True, WHITE)
+        screen.blit(mainText, (1280/3, 720/4))
         
     pygame.display.flip()
     dt = clock.tick(144) / 1000
