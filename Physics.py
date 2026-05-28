@@ -1,5 +1,6 @@
 import math
 import Combat
+from config import global_speed
 
 def CheckCollision(x1, y1, x2, y2, r1, r2):
     dx = x2 - x1
@@ -58,5 +59,5 @@ def ResolveCollision(plr1, plr2, dt):
                 Combat.DealDamage(plr1, plr2)
                 Combat.DealDamage(plr2, plr1)
 
-            plr1.collision_cooldown = 0.05
-            plr2.collision_cooldown = 0.05
+            plr1.collision_cooldown = 0.05 / global_speed
+            plr2.collision_cooldown = 0.05 / global_speed
