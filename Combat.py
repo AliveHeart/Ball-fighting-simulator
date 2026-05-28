@@ -1,5 +1,6 @@
-from config import players, Abilities, SCREENX, SCREENY
+from config import players, Abilities, SCREENX, SCREENY, NamesDOT, global_speed
 from math import floor
+from random import randint
 
 def checkDistance(x1, x2, y1, y2, reqDist):
     dx = x2 - x1
@@ -11,9 +12,9 @@ def checkDistance(x1, x2, y1, y2, reqDist):
 def effectDoT(plr, dt):
     if (len(plr.DoTs) > 0):
         for effect, dot in list(plr.DoTs.items()):
-            dot["tick"] -= dt
+            dot["tick"] -= dt * global_speed
             if dot["tick"] <= 0:
-                if (dot["type"] == "burn"):
+                if (dot["type"] == "burn" and plr.armr > 0):
                     plr.armr -= dot["dmg"]
                 else:
                     plr.hp -= dot["dmg"]
@@ -73,15 +74,17 @@ def DealDamage(plr_attacker, plr_defender):
     
     if ("static" in plr_attacker.DoTs and plr_defender.encht != "static"):
         for plr in players:
-            if checkDistance(plr.x, plr_defender.x, plr.y, plr_defender.y, 200):
-                applyDoT(plr, plr_attacker, plr_attacker.dmg, "static", 2)
-                plr.hp -= plr_attacker.dmg * 0.6
+            if plr.encht != "static" and checkDistance(plr.x, plr_defender.x, plr.y, plr_defender.y, (plr.r * 3)):
+                applyDoT(plr, plr_attacker, plr_attacker.dmg, "static", 1)
+                plr.hp -= plr_attacker.dmg * 0.2
 
 
     if ("virus" in plr_attacker.DoTs):
         if (plr_defender.encht != "virus"):
             applyDoT(plr_defender, plr_attacker, plr_attacker.dmg, "virus", 1)
-        applyDoT(plr_attacker, plr_attacker, plr_attacker.dmg, "poison", 2)
+        applyDoT(plr_attacker, plr_attacker, plr_attacker.dmg, "poison", 1)
 
-    if (plr_attacker.encht != "none"):
+    if (plr_attacker.encht != "none" and plr_attacker.encht != "mage"):
         applyDoT(plr_defender, plr_attacker, plr_attacker.dmg, plr_attacker.encht ,plr_attacker.enTier)
+    elif (plr_attacker.encht == "mage"):
+        applyDoT(plr_defender, plr_attacker, plr_attacker.dmg + randint(-5, 5), NamesDOT[randint(0, 6)], randint(1, 7))
