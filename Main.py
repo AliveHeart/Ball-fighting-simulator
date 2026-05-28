@@ -5,7 +5,7 @@ import random
 import Physics
 import Combat
 
-from config import players, SCREENX, SCREENY
+from config import players, SCREENX, SCREENY, global_speed
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -40,7 +40,6 @@ leech_Image = pygame.image.load(os.path.join(base_dir, 'Assets', 'images', 'leec
 
 tick = 0
 dt = 0
-global_speed = 0.5
 
 bigFont = pygame.font.Font(None, 72)
 Font = pygame.font.Font(None, 52)
@@ -138,13 +137,14 @@ class Player:
                 self.hp -=1
 
 def initiateBattle():
-    players.append(Player(100, 100, 80, 500, 100, 5, (255,0,0), 800, "fire", 1, "none"))  # red ball
-    players.append(Player(300, 200, 80, 500, 100, 5, (0,255,0), 800, "poison", 1, "none"))  # green ball
-    players.append(Player(500, 400, 80, 500, 100, 5, (10,10,10), 800, "bfire", 1, "none"))  # black ball
-    players.append(Player(500, 600, 80, 500, 100, 5, (0,255,255), 800, "frost", 1, "none"))  # cyan  ball
-    players.append(Player(300, 600, 80, 500, 100, 5, (0,100,255), 800, "static", 1, "none")) # blue ball
-    players.append(Player(300, 300, 80, 500, 100, 5, (1, 50, 32), 800, "virus", 1, "none"))  # dark green ball
-    players.append(Player(200, 500, 80, 500, 100, 5, (50, 10, 32), 800, "leech", 1, "none"))  # dark red ball
+    players.append(Player(100, 100, 80, 500, 100, 5, (255,0,0), 500, "fire", 1, "none"))  # red ball
+    players.append(Player(300, 200, 80, 500, 100, 5, (0,255,0), 500, "poison", 1, "none"))  # green ball
+    players.append(Player(500, 400, 80, 500, 100, 5, (10,10,10), 500, "bfire", 1, "none"))  # black ball
+    players.append(Player(500, 600, 80, 500, 100, 5, (0,255,255), 500, "frost", 1, "none"))  # cyan  ball
+    players.append(Player(300, 600, 80, 500, 100, 5, (0,100,255), 500, "static", 1, "none")) # blue ball
+    players.append(Player(300, 300, 80, 500, 100, 5, (1, 50, 32), 500, "virus", 1, "none"))  # dark green ball
+    players.append(Player(200, 500, 80, 500, 100, 5, (50, 10, 32), 500, "leech", 1, "none"))  # dark red ball
+    #players.append(Player(500, 500, 80, 500, 100, 5, (125, 125, 125), 800, "mage", 1, "none"))
 
 state = "menu"
 while running == True:
@@ -168,10 +168,20 @@ while running == True:
         else:
             Fullscreen = False
             screen = pygame.display.set_mode(modes[0])
+    if (keys[pygame.K_SPACE] == True and keys[pygame.K_LSHIFT] == False):
+        global_speed = 0.5
+    elif (keys[pygame.K_LSHIFT] == True and keys[pygame.K_SPACE] == False):
+        global_speed = 2
+    elif (keys[pygame.K_SPACE] == True and keys[pygame.K_LSHIFT] == True):
+        global_speed = 0.1
+    else:
+        global_speed = 1
 
     screen.fill(Black)
 
     if (state == "game"):
+        if (dt > 0):
+            screen.blit(tinyFont.render(str(math.floor(1 / dt)) + " FPS", True, WHITE), (0, 0))
         for plr in players:
             plr.move(dt)
             plr.draw()
@@ -227,6 +237,6 @@ while running == True:
         
     pygame.display.flip()
     dt = clock.tick(144) / 1000
-    tick += dt
+    tick += dt * global_speed
 
 pygame.quit()
