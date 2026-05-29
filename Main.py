@@ -22,8 +22,14 @@ pygame.display.set_caption("Ball fighting simulator")
 Fullscreen = False
 
 SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_size()
+SCREENX, SCREENY = (SCREEN_WIDTH / 1280), (SCREEN_HEIGHT / 720)
 
-middleButtonRect = pygame.Rect(1280/2.5, 720/2, 200 * (SCREENX), 100 * (SCREENX))
+resl_Buttons = []
+
+middleButtonRect = pygame.Rect((SCREEN_WIDTH/2.5), (SCREEN_HEIGHT/2), 150 * (SCREENX), 80 * (SCREENX))
+downButtonRect = pygame.Rect((SCREEN_WIDTH/2.5), (SCREEN_HEIGHT/1.5), 150 * (SCREENX), 80 * (SCREENX))
+optionRECT = pygame.Rect((SCREEN_WIDTH/2.4), (SCREEN_HEIGHT/3.1), 170 * (SCREENX), 50 * (SCREENX))
+bottomRect = pygame.Rect((SCREEN_WIDTH/2.55), (SCREEN_HEIGHT/1.2), 170 * (SCREENX), 50 * (SCREENX))
 
 Black = (0,0,0)
 WHITE = (255, 255, 255)
@@ -41,9 +47,9 @@ leech_Image = pygame.image.load(os.path.join(base_dir, 'Assets', 'images', 'leec
 tick = 0
 dt = 0
 
-bigFont = pygame.font.Font(None, 72)
-Font = pygame.font.Font(None, 52)
-tinyFont = pygame.font.Font(None, 24)
+bigFont = pygame.font.Font(None, int(72 * SCREENX))
+Font = pygame.font.Font(None, int(52 * SCREENX))
+tinyFont = pygame.font.Font(None, int(24 * SCREENX))
 
 def draw_button(button_rect, button_text, clr1, clr2):
     mouse_pos = pygame.mouse.get_pos()
@@ -58,8 +64,8 @@ def draw_button(button_rect, button_text, clr1, clr2):
 
 class Player:
     def __init__(self, x, y, r, hp, armr, dmg, clr, spd, encht, tier, ult,vx=0, vy=0):
-        self.x = x
-        self.y = y
+        self.x = x * SCREENX
+        self.y = y * SCREENY
         self.r = r * (SCREENY)
         self.clr = clr
 
@@ -88,7 +94,7 @@ class Player:
 
         self.collision_cooldown = 0
 
-        self.font = pygame.font.Font(None, math.floor(r/1.5))
+        self.font = pygame.font.Font(None, int(math.floor(r/1.5) * SCREENX))
         self.text_surface = self.font.render(str(hp) + " + " + str(armr), True, WHITE)
     
     def draw(self):
@@ -147,20 +153,43 @@ def initiateBattle():
     #players.append(Player(500, 500, 80, 500, 100, 5, (125, 125, 125), 800, "mage", 1, "none"))
 
 state = "menu"
+resolutionPanel = False
+
 while running == True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT: sys.exit()
-
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if (middleButtonRect.collidepoint(event.pos) and state == "menu"):
-                state = "game"
+        if (tick > 0.01):
+            tick = 0
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if (middleButtonRect.collidepoint(event.pos) and state == "menu"):
+                    state = "game"
+                    initiateBattle()
+                if (downButtonRect.collidepoint(event.pos) and state == "menu"):
+                    state = "settings"
+                if (optionRECT.collidepoint(event.pos) and state == "settings"):
+                    resolutionPanel = True
+                if (bottomRect.collidepoint(event.pos) and state == "menu"):
+                    running = False
                 
-                #for i in range(1, 5):
-                initiateBattle()
+                for button in resl_Buttons:
+                    if (button[0].collidepoint(event.pos) and state == "settings" and resolutionPanel == True):
+                            screen = pygame.display.set_mode(modes[button[1]])
+
+                            SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_size()
+                            SCREENX, SCREENY = (SCREEN_WIDTH / 1280), (SCREEN_HEIGHT / 720)
+
+                            middleButtonRect = pygame.Rect((SCREEN_WIDTH/2.5), (SCREEN_HEIGHT/2), 150 * (SCREENX), 80 * (SCREENX))
+                            downButtonRect = pygame.Rect((SCREEN_WIDTH/2.5), (SCREEN_HEIGHT/1.5), 150 * (SCREENX), 80 * (SCREENX))
+                            optionRECT = pygame.Rect((SCREEN_WIDTH/2.4), (SCREEN_HEIGHT/3.1), 170 * (SCREENX), 50 * (SCREENX))
+
+                            resolutionPanel = False
 
     keys = pygame.key.get_pressed()
     if (keys[pygame.K_ESCAPE] == True):
-        running = False
+        if (state != "menu"):
+            state = "menu"
+            resolutionPanel = False
+            players = []
     elif (keys[pygame.K_F11] == True):
         if (Fullscreen == False):
             Fullscreen = True
@@ -228,15 +257,45 @@ while running == True:
                     Physics.ResolveCollision(p1, p2, dt)
     elif (state == "menu"):
         mainText = bigFont.render("Ball fighting simulator", True, WHITE)
-        PlayText = bigFont.render("Play", True, WHITE)
-        screen.blit(mainText, (1280/3.5, 720/5))
+        PlayText = Font.render("Play", True, WHITE)
+        SettingText = Font.render("Settings", True, WHITE)
+        ExitText = Font.render("Exit", True, WHITE)
+
+        screen.blit(mainText, ((SCREEN_WIDTH/3.5), (SCREEN_HEIGHT/5)))
+
         draw_button(middleButtonRect, PlayText, Green, LGreen)
+        draw_button(downButtonRect, SettingText, Black, Black)
+        draw_button(bottomRect, ExitText, Black, Black)
     elif (state == "setup"):
         mainText = bigFont.render("Set up your balls!", True, WHITE)
-        screen.blit(mainText, (1280/3, 720/4))
+        
+
+        screen.blit(mainText, ((SCREEN_WIDTH/3), (SCREEN_HEIGHT/4)))
+    elif (state == "settings"):
+        mainText = bigFont.render("Settings", True, WHITE)
+        reslText = Font.render("Resolution :", True, WHITE)
+        optText = Font.render(str(SCREEN_WIDTH) + "x" + str(SCREEN_HEIGHT), True, Black)
+
+        screen.blit(mainText, ((SCREEN_WIDTH/2.5), (SCREEN_HEIGHT/6)))
+        screen.blit(reslText, ((SCREEN_WIDTH/4), (SCREEN_HEIGHT/3)))
+
+        draw_button(optionRECT, optText, WHITE, (125, 125, 125))
+
+        if (resolutionPanel == True):
+            resl_Buttons = []
+            for index, res in enumerate(modes):
+                if (res == screen.get_size()):
+                    continue
+
+                optText_temp = Font.render(str(res[0]) + "x" + str(res[1]), True, Black)
+                optRect_temp = pygame.Rect((SCREEN_WIDTH/2.4), (SCREEN_HEIGHT/3.1) + (50 * (index + 1)), 170 * (SCREENX), 50 * (SCREENX))
+                
+                draw_button(optRect_temp, optText_temp, WHITE, (125, 125, 125))
+
+                resl_Buttons.append([optRect_temp, index])                    
         
     pygame.display.flip()
     dt = clock.tick(144) / 1000
-    tick += dt * global_speed
+    tick += dt
 
 pygame.quit()
