@@ -148,13 +148,13 @@ class Player:
 def initiateBattle():
     #--------------------(X position, Y postion, radius, health, armor, damage, colour, speed, effect, tier, ultimate)
     # same colour balls won't damage eachother
-    players.append(Player(100, 100, 50, 500, 100, 5, (255,0,0), 500, "fire", 1, "none"))  # red ball
-    players.append(Player(300, 200, 50, 500, 100, 5, (0,255,0), 500, "poison", 1, "none"))  # green ball
-    players.append(Player(500, 400, 50, 500, 100, 5, (10,10,10), 500, "bfire", 1, "none"))  # black ball
-    players.append(Player(500, 600, 50, 500, 100, 5, (0,255,255), 500, "frost", 1, "none"))  # cyan  ball
-    players.append(Player(300, 600, 50, 500, 100, 5, (0,100,255), 500, "static", 1, "none")) # blue ball
-    players.append(Player(300, 300, 50, 500, 100, 5, (1, 50, 32), 500, "virus", 1, "none"))  # dark green ball
-    players.append(Player(200, 500, 50, 500, 100, 5, (50, 10, 32), 500, "leech", 1, "none"))  # dark red ball
+    players.append(Player(100, 100, 60, 500, 100, 5, (255,0,0), 500, "fire", 1, "none"))  # red ball
+    players.append(Player(300, 200, 60, 500, 100, 5, (0,255,0), 500, "poison", 1, "none"))  # green ball
+    players.append(Player(500, 400, 60, 500, 100, 5, (10,10,10), 500, "bfire", 1, "none"))  # black ball
+    players.append(Player(500, 600, 60, 500, 100, 5, (0,255,255), 500, "frost", 1, "none"))  # cyan  ball
+    players.append(Player(300, 600, 60, 500, 100, 5, (0,100,255), 500, "static", 1, "none")) # blue ball
+    players.append(Player(300, 300, 60, 500, 100, 5, (1, 50, 32), 500, "virus", 1, "none"))  # dark green ball
+    players.append(Player(200, 500, 60, 500, 100, 5, (50, 10, 32), 500, "leech", 1, "none"))  # dark red ball
     #players.append(Player(500, 500, 80, 500, 100, 5, (125, 125, 125), 800, "mage", 1, "none")) # - Special ball
 
 def mainMenu():
@@ -238,7 +238,7 @@ def Game():
 
             screen.blit(tinyFont.render(str(plr.DoTs[DoT]["tier"]), True, WHITE), (posX, posY))
             screen.blit(tinyFont.render(str(plr.DoTs[DoT]["dura"]), True, WHITE), (posX, (plr.y - (plr.r/2 + 15) * SCREENY) - scaleY))
-    if (Frame % 3 == 0) :
+    if (Frame % 4 == 0) :
         for i in range(len(players)):
             for j in range(i+1, len(players)):
                 p1 = players[i]
@@ -260,8 +260,8 @@ while running == True:
                 if (middleButtonRect.collidepoint(event.pos) and state == "menu"):
                     state = "game"
 
-                    for i in range(1, 10):
-                        initiateBattle()
+                    #for i in range(1, 30):
+                    initiateBattle()
                 if (downButtonRect.collidepoint(event.pos) and state == "menu"):
                     state = "settings"
                 if (optionRECT.collidepoint(event.pos) and state == "settings"):
