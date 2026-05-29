@@ -60,29 +60,34 @@ def ultimateAttack(plr):
         if (plr.ult == "speed"):
             plr.spd += 100
 
-def DealDamage(plr_attacker, plr_defender):
-    if (plr_attacker.disabled == True or plr_defender.iframe == True):
-        return 
-    plr_attacker.ultmeter += 1
-    if (plr_defender.armr >= 0 + plr_attacker.dmg):
-        plr_defender.armr -= plr_attacker.dmg
-    else:
-        if ("bfire" in plr_defender.DoTs or "frost" in plr_defender.DoTs or "virus" in plr_defender.DoTs):
-            plr_defender.hp -= plr_attacker.dmg * 1.2
-        else:
-            plr_defender.hp -= plr_attacker.dmg
-    
+def elementAdvantages(plr_defender, plr_attacker):
+    if (plr_defender.armr <= 0):
+         if ("bfire" in plr_defender.DoTs or "frost" in plr_defender.DoTs or "virus" in plr_defender.DoTs):
+            plr_defender.hp -= plr_attacker.dmg * 0.2
+
     if ("static" in plr_attacker.DoTs and plr_defender.encht != "static"):
         for plr in players:
             if plr.encht != "static" and checkDistance(plr.x, plr_defender.x, plr.y, plr_defender.y, (plr.r * 3)):
                 applyDoT(plr, plr_attacker, plr_attacker.dmg, "static", 1)
                 plr.hp -= plr_attacker.dmg * 0.2
 
-
     if ("virus" in plr_attacker.DoTs):
         if (plr_defender.encht != "virus"):
             applyDoT(plr_defender, plr_attacker, plr_attacker.dmg, "virus", 1)
         applyDoT(plr_attacker, plr_attacker, plr_attacker.dmg, "poison", 1)
+
+def DealDamage(plr_attacker, plr_defender):
+    if (plr_attacker.disabled == True or plr_defender.iframe == True):
+        return 
+    
+    plr_attacker.ultmeter += 1
+
+    if (plr_defender.armr >= 0 + plr_attacker.dmg):
+        plr_defender.armr -= plr_attacker.dmg
+    else:
+        plr_defender.hp -= plr_attacker.dmg
+
+    elementAdvantages(plr_defender, plr_attacker)
 
     if (plr_attacker.encht != "none" and plr_attacker.encht != "mage"):
         applyDoT(plr_defender, plr_attacker, plr_attacker.dmg, plr_attacker.encht ,plr_attacker.enTier)
