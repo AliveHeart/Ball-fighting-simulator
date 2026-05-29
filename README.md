@@ -1,22 +1,31 @@
-# Ball fighting simulator
-A simple project about balls fighting eachother by colliding with fun damage, armour and enchantment systems. Something I saw people do in videos and thought it'll be a good starter project idea to upskill. This is my first ever gitHub project, starting 2026. Start of 12th grade.
+# 🎮 Ball fighting simulator
+A simple Python + Pygame project simulating balls with physics, collisions and status effects.
+Built as my first ever GitHub project (2026, start of my 12th grade), a start of my journey of exploring **game physics, optimization, and system design**.
 
-## How to play
-Right now this isn't an executable so you'll have to run it manually through visual studios or any code editor you have. You also need to have pygame installed in order to run it (for now).
+## 🚀 Features
+- ⚔️ Ball physics & collision resolution. 
+- 🛡️ Health, armor, and damage systems.
+- 🔥 Status effects: burn, freeze, poison, virus, stacking DoT.
+- 🎨 Resolution scaling & settings menu.
+- 📊 Performance optimization (60+ FPS with 200+ balls).
 
-## Version
-This project uses Python 3.12.6 and pygame-ce 2.5.7
+## 🛠️ Tech Stack
+- **Language:** Python 3.12.6
+- **Library:** pygame-ce 2.5.7
 
-## Features
-- Ball physics and collision between balls and screen.
-- Health points and armor indications.
-- Multiple balls.
-- Burn damage balls, freezing balls, virus infecting balls, poison balls, etc.
-- DoT stacking balls.
-- Resolution scaling (settings coming soon).
-- DoT indicators
+## 🎯 Why this project matters?
+This project showcases
+- Understanding of **physics simulation** and **collision detection**.
+- Implementation of game mechanics (armor, status effects, advantages, etc).
+- Practical **optimization strategies** for real-time systems.
+- Ability to document and present work professionally.
 
-### Performance Notes
+### 📈 Performance Notes
 - Naive collision resolution (every frame) caused FPS drops to ~25 with 80 balls.
-- Optimized by checking collisions every 3 frames → stable 166+ FPS.
+- Optimized by checking collisions every 4 frames → stable 166+ FPS.
 - Demonstrates trade‑off between simulation accuracy and performance.
+
+## How to run
+1. Install [pygame-ce](https://pypi.org/project/pygame-ce/)
+2. Download this repo
+3. Run **'Main.py'** with python
