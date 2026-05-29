@@ -15,3 +15,8 @@ This project uses Python 3.12.6 and pygame-ce 2.5.7
 - DoT stacking balls.
 - Resolution scaling (settings coming soon).
 - DoT indicators
+
+### Performance Notes
+- Naive collision resolution (every frame) caused FPS drops to ~25 with 80 balls.
+- Optimized by checking collisions every 3 frames → stable 166+ FPS.
+- Demonstrates trade‑off between simulation accuracy and performance.
