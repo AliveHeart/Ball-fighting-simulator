@@ -4,6 +4,9 @@ A simple project about balls fighting eachother by colliding with fun damage, ar
 ## How to play
 Right now this isn't an executable so you'll have to run it manually through visual studios or any code editor you have. You also need to have pygame installed in order to run it (for now).
 
+## Version
+This project uses Python 3.12.6 and pygame-ce 2.5.7
+
 ## Features
 - Ball physics and collision between balls and screen.
 - Health points and armor indications.
