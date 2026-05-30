@@ -66,7 +66,7 @@ def draw_button(button_rect, button_text, clr1, clr2):
     screen.blit(button_text, text_rect)
 
 class Player:
-    def __init__(self, x, y, r, hp, armr, dmg, clr, spd, encht, tier, ult,vx=0, vy=0):
+    def __init__(self, x, y, r, hp, armr, dmg, clr, spd, encht, tier,vx=0, vy=0):
         self.x = x * SCREENX
         self.y = y * SCREENY
         self.r = r * (SCREENY)
@@ -84,7 +84,9 @@ class Player:
         self.vy = math.sin(rad) * spd
 
         self.ultmeter = 0
-        self.ult = ult
+        self.ult = False
+        self.ult_dura = 0
+        self.tick = 1
 
         self.encht = encht
         self.enTier = tier
@@ -108,6 +110,9 @@ class Player:
             displayString = str(math.ceil(self.hp))
 
         self.text_surface = self.font.render(displayString, True, WHITE)
+
+        if (self.ultmeter >= 100 and self.encht == "fire"):
+            pygame.draw.circle(screen, (255, 0, 0, 200), (self.x, self.y), self.r * 4)
 
         pygame.draw.circle(screen, (255, 255, 255), (self.x, self.y), self.r)
         pygame.draw.circle(screen, self.clr, (self.x, self.y), self.r - 5 * SCREENY)
@@ -146,16 +151,16 @@ class Player:
                 self.hp -= 1
 
 def initiateBattle():
-    #--------------------(X position, Y postion, radius, health, armor, damage, colour, speed, effect, tier, ultimate)
+    #--------------------(X position, Y postion, radius, health, armor, damage, colour, speed, effect, tier)
     # same colour balls won't damage eachother
-    players.append(Player(100, 100, 60, 500, 100, 5, (255,0,0), 500, "fire", 1, "none"))  # red ball
-    players.append(Player(300, 200, 60, 500, 100, 5, (0,255,0), 500, "poison", 1, "none"))  # green ball
-    players.append(Player(500, 400, 60, 500, 100, 5, (10,10,10), 500, "bfire", 1, "none"))  # black ball
-    players.append(Player(500, 600, 60, 500, 100, 5, (0,255,255), 500, "frost", 1, "none"))  # cyan  ball
-    players.append(Player(300, 600, 60, 500, 100, 5, (0,100,255), 500, "static", 1, "none")) # blue ball
-    players.append(Player(300, 300, 60, 500, 100, 5, (1, 50, 32), 500, "virus", 1, "none"))  # dark green ball
-    players.append(Player(200, 500, 60, 500, 100, 5, (50, 10, 32), 500, "leech", 1, "none"))  # dark red ball
-    #players.append(Player(500, 500, 80, 500, 100, 5, (125, 125, 125), 800, "mage", 1, "none")) # - Special ball
+    players.append(Player(100, 100, 60, 500, 100, 3, (255,0,0), 500, "fire", 1))  # red ball
+    players.append(Player(300, 200, 60, 500, 100, 3, (0,255,0), 500, "poison", 1))  # green ball
+    players.append(Player(500, 400, 60, 500, 100, 3, (10,10,10), 500, "bfire", 1))  # black ball
+    players.append(Player(500, 600, 60, 500, 100, 3, (0,255,255), 500, "frost", 1))  # cyan  ball
+    players.append(Player(300, 600, 60, 500, 100, 3, (0,100,255), 500, "static", 1)) # blue ball
+    players.append(Player(300, 300, 60, 500, 100, 3, (1, 50, 32), 500, "virus", 1))  # dark green ball
+    players.append(Player(200, 500, 60, 500, 100, 3, (50, 10, 32), 500, "leech", 1))  # dark red ball
+    #players.append(Player(500, 500, 80, 500, 100, 5, (125, 125, 125), 800, "mage", 1, "none")) # - Special mage ball
 
 def mainMenu():
     mainText = bigFont.render("Ball fighting simulator", True, WHITE)
@@ -208,6 +213,9 @@ def Game():
 
         if (plr.collision_cooldown > 0):
             plr.collision_cooldown -= dt
+
+        if (plr.ultmeter >= 100):
+            Combat.ultimateAttack(plr, dt)
 
         Combat.effectDoT(plr, dt)
 
