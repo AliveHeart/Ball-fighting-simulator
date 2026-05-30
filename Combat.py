@@ -44,8 +44,8 @@ def effectDoT(plr, dt):
         plr.pause = False
         plr.disabled = False
 
-def applyDoT(plrD, plrA, dmg, effect,tier):
-    if (effect not in plrD.DoTs or (effect == "poison" or effect == "bfire")):
+def applyDoT(plrD, plrA, dmg, effect,tier, stack):
+    if (effect not in plrD.DoTs or (effect == "poison" or effect == "bfire") or stack == True):
         Dot = Abilities[effect]
         if (effect in plrD.DoTs):
             plrD.DoTs[effect]["tier"] = min(plrD.DoTs[effect]["tier"] + 1, 7)
@@ -55,10 +55,37 @@ def applyDoT(plrD, plrA, dmg, effect,tier):
             newDoT = {"dmg": ((dmg * tier * Dot["dmg"]) / Dot["dura"]), "tick": Dot["tick"], "dura": Dot["dura"], "type": Dot["type"], "tier": tier, "attacker": plrA}
             plrD.DoTs[effect] = newDoT
 
-def ultimateAttack(plr):
-    if (plr.ult != "none"):
-        if (plr.ult == "speed"):
-            plr.spd += 100
+def ultimateAttack(plr, dt):
+        if (plr.encht == "fire"):
+            if (plr.ult_dura <= 0 and plr.ult == False):
+                plr.enTier += 2
+                plr.dmg *= 2
+                plr.tick = 1
+
+                plr.ult = True
+                plr.ult_dura = 10
+                plr.tick = 1
+            elif (plr.ult_dura > 0 and plr.ult == True):
+                plr.ult_dura -= dt
+                plr.tick -= dt
+                if plr.tick <= 0:
+                    plr.tick = 1
+                    for plrx in players:
+                        if (plrx.encht != "fire" and checkDistance(plrx.x, plr.x, plrx.y, plr.y, (plrx.r * 4))):
+                            applyDoT(plrx, plr, plr.dmg, "fire", 2, True)
+                            print("found ball " + plrx.encht)
+                            plrx.hp -= plr.dmg * 0.5
+
+            elif (plr.ult_dura <= 0 and plr.ult == True):
+                plr.enTier -= 2
+                plr.dmg = plr.dmg / 2
+
+                plr.ult = False
+                plr.ultmeter = 0
+                plr.tick = 1
+                plr.ult_dura = 0
+
+
 
 def elementAdvantages(plr_defender, plr_attacker):
     if (plr_defender.armr <= 0):
@@ -68,19 +95,20 @@ def elementAdvantages(plr_defender, plr_attacker):
     if ("static" in plr_attacker.DoTs and plr_defender.encht != "static"):
         for plr in players:
             if plr.encht != "static" and checkDistance(plr.x, plr_defender.x, plr.y, plr_defender.y, (plr.r * 3)):
-                applyDoT(plr, plr_attacker, plr_attacker.dmg, "static", 1)
+                applyDoT(plr, plr_attacker, plr_attacker.dmg, "static", 1, False)
                 plr.hp -= plr_attacker.dmg * 0.2
 
     if ("virus" in plr_attacker.DoTs):
         if (plr_defender.encht != "virus"):
-            applyDoT(plr_defender, plr_attacker, plr_attacker.dmg, "virus", 1)
-        applyDoT(plr_attacker, plr_attacker, plr_attacker.dmg, "poison", 1)
+            applyDoT(plr_defender, plr_attacker, plr_attacker.dmg, "virus", 1, False)
+        applyDoT(plr_attacker, plr_attacker, plr_attacker.dmg, "poison", 1, False)
 
 def DealDamage(plr_attacker, plr_defender):
     if (plr_attacker.disabled == True or plr_defender.iframe == True):
         return 
     
-    plr_attacker.ultmeter += 1
+    if (plr_attacker.ultmeter < 100):
+        plr_attacker.ultmeter += 10
 
     if (plr_defender.armr >= 0 + plr_attacker.dmg):
         plr_defender.armr -= plr_attacker.dmg
@@ -90,6 +118,6 @@ def DealDamage(plr_attacker, plr_defender):
     elementAdvantages(plr_defender, plr_attacker)
 
     if (plr_attacker.encht != "none" and plr_attacker.encht != "mage"):
-        applyDoT(plr_defender, plr_attacker, plr_attacker.dmg, plr_attacker.encht ,plr_attacker.enTier)
+        applyDoT(plr_defender, plr_attacker, plr_attacker.dmg, plr_attacker.encht ,plr_attacker.enTier, False)
     elif (plr_attacker.encht == "mage"):
-        applyDoT(plr_defender, plr_attacker, plr_attacker.dmg + randint(-5, 5), NamesDOT[randint(0, 6)], randint(1, 7))
+        applyDoT(plr_defender, plr_attacker, plr_attacker.dmg + randint(-5, 5), NamesDOT[randint(0, 6)], randint(1, 7), True)
