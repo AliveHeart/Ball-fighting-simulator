@@ -26,7 +26,7 @@ def effectDoT(plr, dt):
                     dot["attacker"].hp += dot["dmg"]
 
                 if (dot["type"] == "freeze"):
-                    if (dot["dura"] >= Abilities[effect]["dura"] / 2):
+                    if (dot["dura"] >= Abilities[effect]["dura"] / 1.5):
                         plr.pause = True
                         plr.disabled = True
                     else:
@@ -52,33 +52,41 @@ def applyDoT(plrD, plrA, dmg, effect,tier, stack):
             plrD.DoTs[effect]["dmg"] = (dmg * plrD.DoTs[effect]["tier"] * 0.5 * Dot["dmg"]) / Dot["dura"]
             plrD.DoTs[effect]["dura"] = min(plrD.DoTs[effect]["dura"] + floor((Dot["dura"] / 2)), 60)
         else:
-            newDoT = {"dmg": ((dmg * tier * Dot["dmg"]) / Dot["dura"]), "tick": Dot["tick"], "dura": Dot["dura"], "type": Dot["type"], "tier": tier, "attacker": plrA}
+
+            newDoT = {"dmg": ((dmg * tier * Dot["dmg"]) / Dot["dura"]), "tick": Dot["tick"], "dura": Dot["dura"] if (effect != "frost") else min(Dot["dura"] * tier, 10), "type": Dot["type"], "tier": tier, "attacker": plrA}
             plrD.DoTs[effect] = newDoT
 
 def ultimateAttack(plr, dt):
-        if (plr.encht == "fire"):
             if (plr.ult_dura <= 0 and plr.ult == False):
-                plr.enTier += 2
-                plr.dmg *= 2
-                plr.tick = 1
+                if (plr.encht == "fire"):
+                    plr.enTier += 2
+                    plr.dmg *= 2
+                    plr.tick = 1
+                    plr.ult_dura = 10
+                elif (plr.encht == "frost"):
+                    plr.ult_dura = 1
+                    for plrx in players:
+                        if (plrx.encht != "frost"):
+                            applyDoT(plrx, plr, plr.dmg, "frost", 7, True)
+                            plrx.hp -= plr.dmg * 1
 
                 plr.ult = True
-                plr.ult_dura = 10
                 plr.tick = 1
             elif (plr.ult_dura > 0 and plr.ult == True):
                 plr.ult_dura -= dt
-                plr.tick -= dt
-                if plr.tick <= 0:
-                    plr.tick = 1
-                    for plrx in players:
-                        if (plrx.encht != "fire" and checkDistance(plrx.x, plr.x, plrx.y, plr.y, (plrx.r * 4))):
-                            applyDoT(plrx, plr, plr.dmg, "fire", 2, True)
-                            print("found ball " + plrx.encht)
-                            plrx.hp -= plr.dmg * 0.5
+                if (plr.encht == "fire"):
+                    plr.tick -= dt
+                    if plr.tick <= 0:
+                        plr.tick = 1
+                        for plrx in players:
+                            if (plrx.encht != "fire" and checkDistance(plrx.x, plr.x, plrx.y, plr.y, (plrx.r * 4))):
+                                applyDoT(plrx, plr, plr.dmg, "fire", 2, True)
+                                plrx.hp -= plr.dmg * 0.5
 
             elif (plr.ult_dura <= 0 and plr.ult == True):
-                plr.enTier -= 2
-                plr.dmg = plr.dmg / 2
+                if (plr.encht == "fire"):
+                    plr.enTier -= 2
+                    plr.dmg = plr.dmg / 2
 
                 plr.ult = False
                 plr.ultmeter = 0
@@ -108,7 +116,7 @@ def DealDamage(plr_attacker, plr_defender):
         return 
     
     if (plr_attacker.ultmeter < 100):
-        plr_attacker.ultmeter += 10
+        plr_attacker.ultmeter += 1
 
     if (plr_defender.armr >= 0 + plr_attacker.dmg):
         plr_defender.armr -= plr_attacker.dmg
