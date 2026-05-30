@@ -6,7 +6,7 @@ Abilities = {"fire" : {"dmg": 0.7, "type": "burn", "tick": 1, "dura" : 7},
         "bfire" : {"dmg": 2, "type": "burn", "tick": 0.5, "dura": 7},
         "poison" : {"dmg": 0.6, "type": "poison", "tick": 1, "dura": 7},
         "virus" : {"dmg": 0.1, "type": "chain", "tick": 1, "dura": 15},
-        "frost" : {"dmg": 0.5, "type": "freeze", "tick": 0.5, "dura": 4},
+        "frost" : {"dmg": 0.3, "type": "freeze", "tick": 0.5, "dura": 4},
         "static" : {"dmg": 1, "type": "chain", "tick": 1, "dura": 2},
         "leech" : {"dmg": 0.4, "type": "leech", "tick": 0.25, "dura": 1},
 }
