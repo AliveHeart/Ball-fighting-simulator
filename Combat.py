@@ -62,26 +62,29 @@ def ultimateAttack(plr, dt):
                     plr.enTier += 2
                     plr.dmg *= 2
                     plr.tick = 1
-                    plr.ult_dura = 10
                 elif (plr.encht == "frost"):
                     plr.ult_dura = 1
                     for plrx in players:
                         if (plrx.encht != "frost"):
-                            applyDoT(plrx, plr, plr.dmg, "frost", 7, True)
-                            plrx.hp -= plr.dmg * 1
+                            applyDoT(plrx, plr, plr.dmg, "frost", 2, True)
+                            plrx.hp -= plr.dmg
 
                 plr.ult = True
+                plr.ult_dura = 10
                 plr.tick = 1
             elif (plr.ult_dura > 0 and plr.ult == True):
                 plr.ult_dura -= dt
-                if (plr.encht == "fire"):
-                    plr.tick -= dt
-                    if plr.tick <= 0:
-                        plr.tick = 1
-                        for plrx in players:
+                plr.tick -= dt
+                if plr.tick <= 0:
+                    plr.tick = 1
+                    for plrx in players:
+                        if (plr.encht == "fire"):
                             if (plrx.encht != "fire" and checkDistance(plrx.x, plr.x, plrx.y, plr.y, (plrx.r * 4))):
                                 applyDoT(plrx, plr, plr.dmg, "fire", 2, True)
                                 plrx.hp -= plr.dmg * 0.5
+                        elif (plr.encht == "bfire"):
+                            if ("bfire" in plrx.DoTs):
+                                plr.hp += plrx.DoTs["bfire"]["dmg"]
 
             elif (plr.ult_dura <= 0 and plr.ult == True):
                 if (plr.encht == "fire"):
@@ -116,7 +119,7 @@ def DealDamage(plr_attacker, plr_defender):
         return 
     
     if (plr_attacker.ultmeter < 100):
-        plr_attacker.ultmeter += 1
+        plr_attacker.ultmeter += 10
 
     if (plr_defender.armr >= 0 + plr_attacker.dmg):
         plr_defender.armr -= plr_attacker.dmg
