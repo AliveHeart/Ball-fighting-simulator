@@ -78,14 +78,17 @@ def ultimateAttack(plr, dt):
                 if plr.tick <= 0:
                     plr.tick = 1
                     for plrx in players:
-                        if (plr.encht == "fire"):
-                            if (plrx.encht != "fire" and checkDistance(plrx.x, plr.x, plrx.y, plr.y, (plrx.r * 4))):
-                                applyDoT(plrx, plr, plr.dmg, "fire", 2, True)
-                                plrx.hp -= plr.dmg * 0.5
-                        elif (plr.encht == "bfire"):
-                            if ("bfire" in plrx.DoTs):
-                                plr.hp += plrx.DoTs["bfire"]["dmg"]
-
+                        if (plrx.encht != plr.encht):
+                            if (plr.encht == "fire"):
+                                if (checkDistance(plrx.x, plr.x, plrx.y, plr.y, (plrx.r * 4))):
+                                    applyDoT(plrx, plr, plr.dmg, "fire", 2, True)
+                                    plrx.hp -= plr.dmg * 0.5
+                            elif (plr.encht == "bfire" and "bfire" in plrx.DoTs):
+                                    plr.hp += plrx.DoTs["bfire"]["dmg"]
+                            elif (plr.encht == "static"):
+                                if (checkDistance(plrx.x, plr.x, plrx.y, plr.y, (plrx.r * 3))):
+                                    applyDoT(plrx, plr, plr.dmg, "static", 2, True)
+                                    plrx.hp -= plr.dmg * 0.5 
             elif (plr.ult_dura <= 0 and plr.ult == True):
                 if (plr.encht == "fire"):
                     plr.enTier -= 2
@@ -105,7 +108,7 @@ def elementAdvantages(plr_defender, plr_attacker):
 
     if ("static" in plr_attacker.DoTs and plr_defender.encht != "static"):
         for plr in players:
-            if plr.encht != "static" and checkDistance(plr.x, plr_defender.x, plr.y, plr_defender.y, (plr.r * 3)):
+            if plr.encht != "static" and checkDistance(plr.x, plr_defender.x, plr.y, plr_defender.y, (plr.r * 3 * plr_attacker.DoTs["static"]["tier"])):
                 applyDoT(plr, plr_attacker, plr_attacker.dmg, "static", 1, False)
                 plr.hp -= plr_attacker.dmg * 0.2
 
