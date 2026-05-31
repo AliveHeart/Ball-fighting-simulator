@@ -111,13 +111,6 @@ class Player:
 
         self.text_surface = self.font.render(displayString, True, WHITE)
 
-        if (self.ultmeter >= 100):
-            if (self.encht == "fire"):
-                pygame.draw.circle(screen, (255, 0, 0, 200), (self.x, self.y), self.r * 4)
-            elif (self.encht == "bfire"):
-                screen.blit(pygame.transform.scale(bfire_Image, (self.r * 4, self.r * 4)), (self.x - self.r * 2, self.y - self.r * 2))
-
-
         pygame.draw.circle(screen, (255, 255, 255), (self.x, self.y), self.r)
         pygame.draw.circle(screen, self.clr, (self.x, self.y), self.r - 5 * SCREENY)
         screen.blit(self.text_surface, (self.x - self.r/2, self.y))
@@ -213,13 +206,21 @@ def Game():
 
     for plr in players:
         plr.move(dt)
+
+        if (plr.ultmeter >= 100):
+            Combat.ultimateAttack(plr, dt)
+
+            if (plr.encht == "fire"):
+                pygame.draw.circle(screen, (255, 0, 0, 200), (plr.x, plr.y), plr.r * 4)
+            elif (plr.encht == "bfire"):
+                screen.blit(pygame.transform.scale(bfire_Image, (plr.r * 4, plr.r * 4)), (plr.x - plr.r * 2, plr.y - plr.r * 2))
+            elif (plr.encht == "static"):
+                pygame.draw.circle(screen, (0, 0, 255, 200), (plr.x, plr.y), plr.r * 3)  
+
         plr.draw()
 
         if (plr.collision_cooldown > 0):
             plr.collision_cooldown -= dt
-
-        if (plr.ultmeter >= 100):
-            Combat.ultimateAttack(plr, dt)
 
         Combat.effectDoT(plr, dt)
 
