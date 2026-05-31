@@ -111,8 +111,12 @@ class Player:
 
         self.text_surface = self.font.render(displayString, True, WHITE)
 
-        if (self.ultmeter >= 100 and self.encht == "fire"):
-            pygame.draw.circle(screen, (255, 0, 0, 200), (self.x, self.y), self.r * 4)
+        if (self.ultmeter >= 100):
+            if (self.encht == "fire"):
+                pygame.draw.circle(screen, (255, 0, 0, 200), (self.x, self.y), self.r * 4)
+            elif (self.encht == "bfire"):
+                screen.blit(pygame.transform.scale(bfire_Image, (self.r * 4, self.r * 4)), (self.x - self.r * 2, self.y - self.r * 2))
+
 
         pygame.draw.circle(screen, (255, 255, 255), (self.x, self.y), self.r)
         pygame.draw.circle(screen, self.clr, (self.x, self.y), self.r - 5 * SCREENY)
